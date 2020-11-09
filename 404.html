@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+        <title>二维码</title>
+        <script src="./jquery.min.js"></script>
+        <script src="./jquery.qrcode.min.js"></script>
+        <link rel="stylesheet" href="./style.css" />
+        <script type="text/javascript">
+        var LocString = String(window.document.location.href);
+        function GetQueryString(str) {
+            var rs=new RegExp("(^|)"+str+"=([^&]*)(&|$)","gi").exec(LocString),tmp;
+            if(tmp=rs) return tmp[2];
+            return "";
+        }
+        </script>
+        <script type="text/javascript">
+        function utf16to8(str) {
+                var out, i, len, c;
+                out = "";
+                len = str.length;
+                for (i = 0; i < len; i++) {
+                        c = str.charCodeAt(i);
+                        if ((c >= 0x0001) && (c <= 0x007F)) {
+                                out += str.charAt(i);
+                        } else if (c > 0x07FF) {
+                                out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+                                out += String.fromCharCode(0x80 | ((c >> 6) & 0x3F));
+                                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+                        } else {
+                                out += String.fromCharCode(0xC0 | ((c >> 6) & 0x1F));
+                                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+                        }
+                }
+                return out;
+        }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header"></div>
+            <div class="box">
+                <div class="formbox">
+                    <form id="contact" action="" method="get">
+                        <h3>文字输入区</h3>
+                        <fieldset>
+                            <textarea id="url" name="url" placeholder="文字内容" tabindex="0" required></textarea>
+                        </fieldset>
+                        <fieldset>
+                            <button type="submit">生成二维码</button>
+                        </fieldset>
+                    </form>
+                    <script>
+                    $(function(){
+                        $("button").click(function(){
+                            $("#url").val(encodeURI($("#url").val()));
+                            $("form").sumbit();
+                        });
+                    });
+                    </script>
+                </div>
+                <div class="qrbox">
+                    <div class="qrcode"></div>
+                    <script>
+                        if(GetQueryString("url")){
+                            var url = utf16to8(decodeURIComponent(GetQueryString("url")));
+                        } else {
+                            var url = 'https://chigo.tk/';
+                        }
+
+                        window.onload = function() {
+                            var trs = $('.qrcode').qrcode({
+                                width: 250,
+                                height: 250,
+                                render: "canvas",
+                                text: url,
+                                background: "#ffffff",
+                                foreground: "black"
+                            }).find('tr'),
+                            trLen = Math.floor(trs.size() / 2),
+                            tdLen = Math.floor(trs.eq(0).find('td').size() / 2),
+                            tds,
+                            bgColor;
+                            var colors = [['#ff0000', '#0100e2'], ['#00ed01', '#9f4d95']];
+                            trs.each(function(j) {
+                                tds = $(this).find('td');
+                                tds.each(function(i) {
+                                    bgColor = this.style.backgroundColor;
+                                    if (bgColor == 'red') {
+                                        this.style.backgroundColor = colors[j < trLen ? 0 : 1][i < tdLen ? 0 : 1];
+                                    }
+                                });
+                            });
+                        }
+
+                        document.write('<div class="text">'+ utf16to8(url) +'</div>');
+                    </script>
+
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
